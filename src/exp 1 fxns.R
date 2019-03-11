@@ -32,6 +32,9 @@ get_info <- function(fileloc){
   # === imports sample integral data ===
   samp <- read.csv(fileloc, skip=1, header=T)
   colnames(samp) <- c('sampleID','tube_num', 'rep', 'rack', 'position', 'time_flush', 'time_msre', 'integral', 'inject_num', 'std_time_int', 'std_integral')
+  # switching treatments 4 and 8, as the tubes are still labeled in the original setup
+  # samp <- switch48(samp)
+
   samp <- samp[colSums(!is.na(samp)) > 0]
   
   # === many lines for converting dates into the correct format ===
