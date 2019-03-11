@@ -1,48 +1,19 @@
-# ======= header ============------------------------
 
-# Analyze IRGA data
-# April 2016
 
-# ***to deal with switching the treatments:
-# ***the line after a file is imported (or as soon as
-# *** "sampleID" column is named) do the necessary switching
-
-# Set working directory and clear workspace----------------------------------------
-
-# working directory for round 3 in csv
-setwd("C:/Users/Yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/csv3/")
-
-rm(list = ls()) # clear workspace
-
-# Load packages ---------------------------
-library(plyr)
-# library(data.table)
-library(reshape2)
 library(ggplot2)
 library(zoo) # for interpolation
-library(dplyr)
+library(here)
+library(tidyr)
 
-source('C:/Users/yaya/Dropbox/1 Ecologist/2 EXPERIMENTS/1 soil microbes/3 Analyses/exp 1 fxns.R')
-
-
+source(here::here('src/exp 1 fxns.R'))
 
 # Import all tables and flatten all samplings into one data frame------
 
+setwd(here::here('results/'))
 # === read all files in the directory + flatten ===
-file_list <- list.files(pattern="*.csv") # file_list <- 'samp1.04.csv' # debugging
-
-# get meta data + sample data for all files in directory
-all_master <- lapply(file_list, get_info)
-# flatten list of data frames into one data fram
-# all_samp <- rbind_all(all_master) # apparently has deprecated
-all_samp <- bind_rows(all_master)
-
-# write to file: all standards interpolated, all samples properly labeled
-write.csv(all_samp, file='C:/Users/yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/3 Analyses/all_samp.csv')
 
 # === import tube actual soil values + merge ===
-dsoil_raw <- read.csv('C:/Users/yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/2 Data/dsoil_actual_phase1.csv', header=T)
-dsoil_table <- switch48(dsoil_raw)
+dsoil_raw <- read.csv(here::here('data/dsoil_actual_phase1.csv'), header=T)
 dsoil_table <- subset(dsoil_table, sampleID != 'GGR.5')
 
 
@@ -116,28 +87,6 @@ diff_summary_C <- merge(data_summary, ctrl_data, by=c('MC', 'incub_count')) %>%
 
 diff_summary_C <- diff_summary_C %>%
    mutate(trt_ID=paste0(as.character(MC), as.character(treatment)))
-
-# # # ===GRAPHS FOR DEBUGGING===
-# # plot reference data by one single MC/soil
-# ggplot(ctrl_data %>% filter(MC=='GG'), aes(x= incub_count, y=MC_ctrl_avg), color=MC) +
-#    geom_point() +
-#    ggtitle('Control values per soil MC') +
-#    geom_line()
-#
-# # plotting all four MCs at once
-# ggplot(ctrl_data, aes(x= incub_count, y=MC_ctrl_avg), color=MC, group=MC) +
-#    geom_point() +
-#    ggtitle('ALL control respiration values for each MC') +
-#    geom_line(aes(group=MC, color=MC))
-#
-# # FOR GENERAL DEBUGGING IN THIS SECTION USE THIS
-# # plot each treatment ppm by day over time
-# ggplot(diff_summary_C, aes(x=incub_count, y=mean_reps, color=factor(interaction(MC, treatment)))) +
-#    geom_point(shape=20, size=4) +
-#    ggtitle('Raw CO2 values for each treatment') +
-#    geom_errorbar(aes(ymin=mean_reps-se_reps, ymax=mean_reps+se_reps), width=0.3) +
-#    geom_line(aes(factor=interaction(MC, treatment)))
-# # # ===END DEBUGGING===
 
 # Declare variables for unique treatments, labels, tubes, for a simplified data table [basic_data_C]-----
 
