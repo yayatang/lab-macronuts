@@ -32,8 +32,6 @@ get_info <- function(fileloc){
   # === imports sample integral data ===
   samp <- read.csv(fileloc, skip=1, header=T)
   colnames(samp) <- c('sampleID','tube_num', 'rep', 'rack', 'position', 'time_flush', 'time_msre', 'integral', 'inject_num', 'std_time_int', 'std_integral')
-  # switching treatments 4 and 8, as the tubes are still labeled in the original setup
-  samp <- switch48(samp)
   samp <- samp[colSums(!is.na(samp)) > 0]
   
   # === many lines for converting dates into the correct format ===
@@ -100,18 +98,6 @@ get_info <- function(fileloc){
   
   # === return relevant variables ===
   master <- select(samp, sampleID, incub_count, total_time_incub, integral, inject_num, std_vector)
-}
-
-# @@@ FUNCTION: switching 4 and 8, all phases--------------------------------------------
-
-switch48 <- function(data48){
-  # making a temp variable to keep the "factor" attribute of the data frame
-  tempID <- as.character(data48$sampleID)
-  tempID <- gsub('8.', '9.', tempID)
-  tempID <- gsub('4.', '8.', tempID)
-  tempID <- gsub('9.', '4.', tempID)
-  data48$sampleID <- as.factor(tempID)
-  return(data48)
 }
 
 # @@@ FUNCTION: calculate standard error ---------------------------------------------
