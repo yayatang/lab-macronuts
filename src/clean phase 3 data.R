@@ -234,4 +234,4 @@ data_p3 <- data_orig %>%
     dplyr::rename(phase_count = incub_count) %>% 
     mutate(phase = 3, exp_count = phase_count + 42 + 130)
 
-write.csv(data_p3, file = here::here('data/entered IRGA data/2 clean data/all_clean_p3_unswitched.csv'), row.names=FALSE)
+write.csv(data_p3, file = here::here('results/all_clean_p3_unswitched.csv'), row.names=FALSE)

@@ -234,7 +234,7 @@ data_orig <- mutate(data_orig, samp_co2_perday = samp_co2_rate*24)
 # ===NEW LINES SPECIFICALLY FOR CLEANING DATA===
 # label data for inclusion in master experiment data frame
 data_p2 <- data_orig %>%
-   rename(phase_count = incub_count) %>%
+   dplyr::rename(phase_count = incub_count) %>%
    mutate(phase=2, exp_count = phase_count+42)
 
-write.csv(data_p2, file = here::here('data/entered IRGA data/2 clean data/all_clean_p2_unswitched.csv'), row.names=FALSE)
+write.csv(data_p2, file = here::here('results/all_clean_p2_unswitched.csv'), row.names=FALSE)
