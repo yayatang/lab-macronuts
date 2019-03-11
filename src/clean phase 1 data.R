@@ -55,7 +55,7 @@ get_info <- function(fileloc){
    samp <- read.csv(fileloc, skip=1, header=T)
    samp <- samp[,1:10] # delete this for round 2, it's for removing the moistening cols
    colnames(samp) <- c('tube_num', 'rep', 'rack', 'position', 'sampleID', 'time_flush', 'time_msre', 'integral', 'inject_num', 'std_integral') # include this before std_integral in round 2: 'std_time_int'
-   samp <- switch48(samp)
+   # samp <- switch48(samp) # unswitch because it's not necc wrong!
    samp <- samp[colSums(!is.na(samp)) > 0]
 
    # === many lines for converting dates into the correct format ===
