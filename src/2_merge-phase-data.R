@@ -2,7 +2,7 @@ library(here)
 library(dplyr)
 library(readr)
 
-source(here::here('src/exp 1 fxns.R'))
+source(here::here('src/0_exp-1-fxns.R'))
 setwd(here::here('results'))
 
 
@@ -14,4 +14,4 @@ file_list <- c(
 all_master <- lapply(file_list, read.csv)
 all_samp <- bind_rows(all_master)
 
-write.csv(all_samp, file=here::here('results/all_samp.csv'))
+write_csv(all_samp, here::here('results/all_phases_clean_data.csv'))
