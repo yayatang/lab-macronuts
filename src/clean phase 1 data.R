@@ -137,7 +137,7 @@ all_samp <- bind_rows(all_master)
 
 
 # === import tube actual soil values + merge ===
-dsoil_raw <- read.csv('data/dsoil_actual_phase1.csv', header=T)
+dsoil_raw <- read.csv(here::here('data/dsoil_actual_phase1.csv'), header=T)
 # dsoil_table <- switch48(dsoil_raw)
 dsoil_table <- dsoil_raw
 
@@ -177,4 +177,4 @@ data_p1 <- data_orig %>%
    rename(phase_count = incub_count) %>%
    mutate(phase=1, exp_count = phase_count)
 
-write.csv(data_p1, file = 'data/entered IRGA data/2 clean data/all_clean_p1.csv', row.names=FALSE)
+write.csv(data_p1, file = here::here('data/entered IRGA data/2 clean data/all_clean_p1_unswitched.csv'), row.names=FALSE)

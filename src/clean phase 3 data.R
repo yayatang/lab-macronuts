@@ -9,21 +9,17 @@
 
 # Set working directory and clear workspace----------------------------------------
 
-# working directory for round 2 in csv
-setwd("C:/Users/Yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/csv3/")
-
-rm(list = ls()) # clear workspace
-
 # Load packages ---------------------------
-library(plyr)
-library(reshape2)
 library(zoo) # for interpolation
 library(dplyr)
+library(here)
 
+# working directory for phase 3 in csv
+setwd(here::here('data/entered IRGA data/csv3/'))
 
 # @@@ FUNCTION: to read and return data, interpolates standards ------------------
 get_info <- function(fileloc) {
-   # fileloc <- 'IRGA 3-10.csv' # for DEBUGGING
+   fileloc <- 'IRGA 3-22.csv' # for DEBUGGING
 
    # === first import META DATA ===
 
@@ -82,6 +78,7 @@ get_info <- function(fileloc) {
    # switching treatments 4 and 8, as the tubes are still labeled in the original setup
    # samp <- switch48(samp) # unswitching!!
    samp <- samp[colSums(!is.na(samp)) > 0]
+   samp <- samp[,1:11]
 
    # === many lines for converting dates into the correct format ===
    samp$day_flush <- as.character(meta$day_flush)
@@ -184,7 +181,8 @@ switch48 <- function(data48) {
 # Import all tables and flatten all samplings into one data frame------
 
 # === read all files in the directory + flatten ===
-file_list <- list.files(pattern="*.csv") # file_list <- 'samp1.04.csv' # debugging
+file_list <- list.files(pattern="*.csv")
+# file_list <- 'IRGA 3-22.csv' # debugging
 
 # get meta data + sample data for all files in directory
 all_master <- lapply(file_list, get_info)
@@ -194,7 +192,7 @@ all_samp <- bind_rows(all_master)
 
 
 # === import tube actual soil values + merge ===
-dsoil_raw <- read.csv('C:/Users/yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/dsoil_actual_phase1.csv', header=T)
+dsoil_raw <- read.csv(here::here('data/dsoil_actual_phase1.csv'), header=T)
 # dsoil_table <- switch48(dsoil_raw) #unswitched!!!
 dsoil_table <- dsoil_raw
 # dsoil_table <- subset(dsoil_table, sampleID != 'GGR.5')
@@ -233,7 +231,7 @@ data_orig <- mutate(data_orig, samp_co2_perday = samp_co2_rate*24)
 # ===NEW LINES SPECIFICALLY FOR CLEANING DATA===
 # label data for inclusion in master experiment data frame
 data_p3 <- data_orig %>%
-   rename(phase_count = incub_count) %>%
-   mutate(phase=3, exp_count = phase_count+42+130)
+    dplyr::rename(phase_count = incub_count) %>% 
+    mutate(phase = 3, exp_count = phase_count + 42 + 130)
 
-write.csv(data_p3, file = 'C:/Users/Yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/2 clean data/all_clean_p3.csv', row.names=FALSE)
+write.csv(data_p3, file = here::here('data/entered IRGA data/2 clean data/all_clean_p3_unswitched.csv'), row.names=FALSE)
