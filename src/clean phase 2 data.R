@@ -9,16 +9,14 @@
 
 # Set working directory and clear workspace----------------------------------------
 
-# working directory for round 2 in csv
-setwd(
-   "C:/Users/Yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/csv2/"
-)
-
-rm(list = ls()) # clear workspace
 
 # Load packages ---------------------------
 library(dplyr)
 library(zoo)
+library(here)
+
+# working directory for round 2 in csv
+setwd(here::here('data/entered IRGA data/csv2/'))
 
 # @@@ FUNCTION: to read and return data, interpolates standards ------------------
 get_info <- function(fileloc) {
@@ -78,7 +76,7 @@ get_info <- function(fileloc) {
          'std_time_int',
          'std_integral'
       )
-   samp <- switch48(samp)
+   # samp <- switch48(samp)
    samp <- samp[colSums(!is.na(samp)) > 0]
 
    # === many lines for converting dates into the correct format ===
@@ -198,8 +196,9 @@ all_samp <- bind_rows(all_master)
 
 
 # === import tube actual soil values + merge ===
-dsoil_raw <- read.csv('C:/Users/yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/dsoil_actual_phase1.csv', header=T)
-dsoil_table <- switch48(dsoil_raw)
+dsoil_raw <- read.csv('data/dsoil_actual_phase1.csv', header=T)
+# dsoil_table <- switch48(dsoil_raw) #unswitched!!
+dsoil_table <- dsoil_raw
 
 # === merge IRGA data with dry soil data ===
 table_merged <- merge(all_samp, dsoil_table, by=c('sampleID'))
@@ -238,4 +237,4 @@ data_p2 <- data_orig %>%
    rename(phase_count = incub_count) %>%
    mutate(phase=2, exp_count = phase_count+42)
 
-write.csv(data_p2, file = 'C:/Users/Yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/2 clean data/all_clean_p2.csv', row.names=FALSE)
+write.csv(data_p2, file = 'data/entered IRGA data/2 clean data/all_clean_p2.csv', row.names=FALSE)

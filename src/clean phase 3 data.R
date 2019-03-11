@@ -80,7 +80,7 @@ get_info <- function(fileloc) {
          'std_integral'
       )
    # switching treatments 4 and 8, as the tubes are still labeled in the original setup
-   samp <- switch48(samp)
+   # samp <- switch48(samp) # unswitching!!
    samp <- samp[colSums(!is.na(samp)) > 0]
 
    # === many lines for converting dates into the correct format ===
@@ -195,7 +195,8 @@ all_samp <- bind_rows(all_master)
 
 # === import tube actual soil values + merge ===
 dsoil_raw <- read.csv('C:/Users/yaya/Dropbox/1 Research/EXPERIMENTS/1 soil microbes/2 Data/dsoil_actual_phase1.csv', header=T)
-dsoil_table <- switch48(dsoil_raw)
+# dsoil_table <- switch48(dsoil_raw) #unswitched!!!
+dsoil_table <- dsoil_raw
 # dsoil_table <- subset(dsoil_table, sampleID != 'GGR.5')
 
 

@@ -7,19 +7,17 @@
 # ***the line after a file is imported (or as soon as
 # *** "sampleID" column is named) do the necessary switching
 
-# Set working directory and clear workspace----------------------------------------
-
-# this line is for csv, round 1
-
-setwd("C:/Users/yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/csv/")
-rm(list = ls()) # clear workspace
-
 # Load packages ---------------------------
 
 # library(plyr)
 # library(reshape2)
 library(dplyr)
 library(zoo)
+library(here)
+
+# working directory for round 2 in csv
+setwd(here::here('data/entered IRGA data/csv/'))
+
 
 get_info <- function(fileloc){
    # fileloc <- 'samp1.11.csv' # for DEBUGGING
@@ -55,7 +53,7 @@ get_info <- function(fileloc){
    samp <- read.csv(fileloc, skip=1, header=T)
    samp <- samp[,1:10] # delete this for round 2, it's for removing the moistening cols
    colnames(samp) <- c('tube_num', 'rep', 'rack', 'position', 'sampleID', 'time_flush', 'time_msre', 'integral', 'inject_num', 'std_integral') # include this before std_integral in round 2: 'std_time_int'
-   samp <- switch48(samp)
+   # samp <- switch48(samp) # unswitch because it's not necc wrong!
    samp <- samp[colSums(!is.na(samp)) > 0]
 
    # === many lines for converting dates into the correct format ===
@@ -139,8 +137,9 @@ all_samp <- bind_rows(all_master)
 
 
 # === import tube actual soil values + merge ===
-dsoil_raw <- read.csv('C:/Users/yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/2 Data/dsoil_actual_phase1.csv', header=T)
-dsoil_table <- switch48(dsoil_raw)
+dsoil_raw <- read.csv('data/dsoil_actual_phase1.csv', header=T)
+# dsoil_table <- switch48(dsoil_raw)
+dsoil_table <- dsoil_raw
 
 # === merge IRGA data with dry soil data ===
 table_merged <- merge(all_samp, dsoil_table, by=c('sampleID'))
@@ -178,4 +177,4 @@ data_p1 <- data_orig %>%
    rename(phase_count = incub_count) %>%
    mutate(phase=1, exp_count = phase_count)
 
-write.csv(data_p1, file = 'C:/Users/Yaya/Dropbox/1 Research/2 EXPERIMENTS/1 soil microbes/2 Data/entered IRGA data/2 clean data/all_clean_p1.csv', row.names=FALSE)
+write.csv(data_p1, file = 'data/entered IRGA data/2 clean data/all_clean_p1.csv', row.names=FALSE)
