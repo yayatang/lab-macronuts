@@ -2,7 +2,7 @@ library(ggplot2)
 library(zoo)
 library(dplyr)
 
-all_clean <- read.csv(here::here('results/all_phases_clean_switched.csv'))
+data0_raw <- read.csv(here::here('results/all_phases_clean_switched.csv'))
 
 # Calculate gross daily ppm values [data_orig]------
 
@@ -14,16 +14,16 @@ known_std <- 1997
 inj_constant <- 1.096
 
 # sub-value of true ppm
-data_orig <- all_clean
-data_orig$samp_co2_sub <- (known_std * (data_orig$integral/data_orig$std_vector))*(inj_constant^data_orig$inject_num)
+data1_orig <- data0_raw
+data1_orig$samp_co2_sub <- (known_std * (data1_orig$integral/data1_orig$std_vector))*(inj_constant^data1_orig$inject_num)
 
 # converting to CO2 micromoles, then micrograms-C, divide for ppm->microM
 co2c_const <- 0.05 * 12.0011 / 22.4
 
 # calculate _final_ CO2 ppm rate per day, in units CO2-C (microg C/g/h)
-data_orig$samp_co2_tot <- data_orig$samp_co2_sub * co2c_const / data_orig$actual_dsoil
-data_orig$samp_co2_rate <- data_orig$samp_co2_tot / data_orig$total_time_incub
-data_orig <- mutate(data_orig, samp_co2_perday = samp_co2_rate*24)
+data1_orig$samp_co2_tot <- data1_orig$samp_co2_sub * co2c_const / data1_orig$actual_dsoil
+data1_orig$samp_co2_rate <- data1_orig$samp_co2_tot / data1_orig$total_time_incub
+data1_orig <- mutate(data1_orig, samp_co2_perday = samp_co2_rate*24)
 
 # Calculate ctrl vals + merge [ref_data, ctrl_data, data_with_C]-----------------------
 
