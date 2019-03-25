@@ -3,8 +3,6 @@ library(zoo)
 library(here)
 
 source(here::here('src/0_exp-1-fxns.R'))
-# datasheet location for phase 2 csvs
-setwd(here::here('data/entered IRGA data/csv2/'))
 
 # @@@ FUNCTION: to read and return data, interpolates standards ------------------
 get_info <- function(fileloc) {
@@ -146,7 +144,7 @@ get_info <- function(fileloc) {
 
 # Import all tables and flatten all samplings into one data frame------
 # === read all files in the directory + flatten ===
-file_list <- list.files(pattern="*.csv") # file_list <- 'IRGA 2-08.csv' # debugging
+file_list <- list.files(path = here::here('data/entered IRGA data/csv2/'), pattern="*.csv", full.names=TRUE) # file_list <- 'IRGA 2-08.csv' # debugging
 
 # get meta data + sample data for all files in directory
 all_master <- lapply(file_list, get_info)

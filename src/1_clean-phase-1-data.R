@@ -115,10 +115,7 @@ get_info <- function(fileloc) {
 # Import all tables and flatten all samplings into one data frame------
 # === read all files in the directory + flatten ===
 # datasheet location for phase 1 csvs
-# setwd(here::here('data/entered IRGA data/csv/'))
 file_list <- list.files(path = here::here('data/entered IRGA data/csv/'), pattern="*.csv", full.names=TRUE) # file_list <- 'IRGA 1-04.csv' # debugging
-# file_list <- list.files(pattern="*.csv") 
-# file_list <- 'IRGA 1-04.csv' # debugging
 
 # get meta data + sample data for all files in directory
 all_master <- lapply(file_list, get_info)
@@ -139,3 +136,4 @@ data_p1 <- all_samp %>%
     arrange(sampleID, exp_count)
 
 write.csv(data_p1, file = here::here('results/all_clean_p1_switched.csv'), row.names=FALSE)
+    
