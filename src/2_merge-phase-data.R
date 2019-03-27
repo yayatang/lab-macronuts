@@ -3,7 +3,6 @@ library(dplyr)
 library(readr)
 
 source(here::here('src/0_exp-1-fxns.R'))
-setwd(here::here('results'))
 
 file_list <- c(
     here::here('results/all_clean_p1_switched.csv'),
@@ -11,7 +10,7 @@ file_list <- c(
     here::here('results/all_clean_p3_switched.csv'))
 
 import_triphase <- lapply(file_list, read.csv)
-all_triphase <- bind_rows(all_master)
+all_triphase <- bind_rows(import_triphase)
 
 # === import tube actual soil values + merge ===
 dsoil_raw <- read.csv(here::here('data/dsoil_actual_phase1.csv'), header=T)
