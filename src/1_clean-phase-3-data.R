@@ -174,4 +174,6 @@ data_p3 <- all_samp %>%
            exp_count = phase_count + 42 + 130) %>% 
     arrange(sampleID, exp_count)
 
-write.csv(data_p3, file = here::here('results/all_clean_p3_switched.csv'), row.names=FALSE)
+data_p3_filt <- data_p3[!(data_p3$sampleID == 'BG6.6' & data_p3$exp_count > 250),]
+
+write.csv(data_p3_filt, file = here::here('results/all_clean_p3_switched.csv'), row.names=FALSE)
