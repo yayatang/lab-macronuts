@@ -135,5 +135,5 @@ data_p1 <- all_samp %>%
            exp_count = phase_count) %>% 
     arrange(sampleID, exp_count)
 
-write.csv(data_p1, file = here::here('results/all_clean_p1_switched.csv'), row.names=FALSE)
+# write.csv(data_p1, file = here::here('results/all_clean_p1_switched.csv'), row.names=FALSE)
     
