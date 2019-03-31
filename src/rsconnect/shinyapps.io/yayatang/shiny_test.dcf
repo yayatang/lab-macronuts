@@ -1,0 +1,13 @@
+name: shiny_test
+title: shiny_test
+username:
+account: yayatang
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 827149
+bundleId: 1976636
+url: https://yayatang.shinyapps.io/shiny_test/
+when: 1554022420.57588
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 0_exp-1-fxns.R|1_clean-phase-1-data.R|1_clean-phase-2-data.R|1_clean-phase-3-data.R|2_merge-phase-data.R|3_analyze-triphase.R|4_generate-plotvals.R|4_visualize-triphase.R|etc.R|shiny_functions_clean.R|shiny_skele.R|shiny_template.R|shiny_trial.R
