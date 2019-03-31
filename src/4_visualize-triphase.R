@@ -1,5 +1,9 @@
 #  for visualizing data
 
+trt_vec <- sort(as.character(unique(data4_diff$treatment)))
+MC_vec <- as.character(unique(data4_diff$MC))
+
+
 # Generate error bars for sampling days  [errorbar_cumul_C, errorbar_diff_C]-----
 
 # these are the only days that get real bars, since these were true data days
