@@ -63,7 +63,7 @@ get_info <- function(fileloc) {
             'std_integral'
         )
     # switching treatments 4 and 8, as the tubes are still labeled in the original setup
-    samp <- switch48(samp) # unswitching!!
+    # samp <- switch48(samp) # unswitching!!
     samp <- samp[colSums(!is.na(samp)) > 0]
     samp <- samp[,1:11]
     
@@ -174,6 +174,8 @@ data_p3 <- all_samp %>%
            exp_count = phase_count + 42 + 130) %>% 
     arrange(sampleID, exp_count)
 
-data_p3_filt <- data_p3[!(data_p3$sampleID == 'BG6.6' & data_p3$exp_count > 250),]
+data_p3_filt <- data_p3
+# data_p3_filt <- data_p3[!(data_p3$sampleID == 'BG6.6' & data_p3$exp_count > 250),]
+# data_p3_filt <- subset(data_p3_filt, !(sampleID == 'BUC.1' & exp_count == 201))
 
-write.csv(data_p3_filt, file = here::here('results/all_clean_p3_switched.csv'), row.names=FALSE)
+write.csv(data_p3_filt, file = here::here('results/all_clean_p3_unswitched.csv'), row.names=FALSE)

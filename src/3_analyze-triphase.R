@@ -2,6 +2,7 @@ library(ggplot2)
 library(zoo)
 library(dplyr)
 library(purrr)
+library(readr)
 
 source(here::here('src/0_exp-1-fxns.R'))
 
@@ -62,8 +63,8 @@ data4_diff <- data3_with_C %>%
 
 #Declare variables for unique treatments, labels, tubes, simplified data table [basic_diff]-----
 
-# list of days with measurements for later error bars (possibly deprecated)
-irga_days <- data.frame(exp_count = unique(data4_diff$exp_count)) %>% 
+# # list of days with measurements for later error bars (possibly deprecated)
+irga_days <- data.frame(exp_count = unique(data4_diff$exp_count)) %>%
     arrange(exp_count)
 
 # unique values for each variable
@@ -88,13 +89,14 @@ grid_vals <- grid_empty %>%
 
 
 # basic_diff is the last table with non-inferred data, trimmed
-data5_diff_trim <- data4_diff # %>%
+data5_diff_trim <- data4_diff %>%
     # select(sampleID, exp_count, diff_fromC_perday)
+    select(-phase, -MC, -treatment, -rep)
 
 # Create blank grid and interpolate [daily_summ]------------------------------------
 # outer join blank table with CO2 data
-data6_gapped <- left_join(grid_vals, data5_diff_trim, by=c('sampleID', 'exp_count')) # %>% 
-    # mutate(trt_ID = substr(sampleID, 1,3))
+data6_gapped <- left_join(grid_vals, data5_diff_trim, by=c('sampleID', 'exp_count')) %>% 
+    mutate(trt_ID = substr(sampleID, 1,3))
 
 # include MC, treatment, and rep columns
 data7_gapped_full <- left_join(data6_gapped, extra_ID, by='sampleID')
@@ -103,7 +105,11 @@ data8_gapped_interpolated <- data7_gapped_full %>%
     group_by(sampleID) %>%
     arrange(exp_count) %>%
     mutate(interped = is.na(diff_fromC_perday), 
-           infer_perday = na.approx(diff_fromC_perday, rule = 2)) # to interpolate beyond max x val
+           infer_diff_perday = na.approx(diff_fromC_perday, rule = 2),
+           infer_samp_perday = na.approx(samp_co2_perday, rule = 2)) # to interpolate beyond max x val
 
+calculated_data <- data8_gapped_interpolated %>% 
+    select(sampleID, exp_count, samp_co2_perday, diff_fromC_perday, infer_samp_perday, infer_diff_perday, everything())
 
-# write_csv(cumul_all_sum, here::here('results/3_processed_data.csv'))
+write_csv(calculated_data, here::here(paste0('results/calculated_',switch_file)))
+# write_csv(irga_days, here::here('results/irga_days.csv'))
