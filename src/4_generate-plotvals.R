@@ -5,7 +5,7 @@ library(tidyverse)
 source(here::here('src/0_exp-1-fxns.R'))
 
 data_calculated <- read.csv(here::here('results/calculated_unswitched.csv'))
-data_ID <- unique(data_calculated[, c('MC', 'treatment','exp_count')])
+data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])
 # irga_days <- read.csv(here::here('results/irga_days.csv'))
 
 # prepping data into two tables for graphing
@@ -29,70 +29,43 @@ by_tube <- data_calculated %>%
 
 # treatment table
 # 1) generate mean daily gross values, and se by treatment
-# 2) add up cumulative values by phase and by exp_count
+# 2) sum up cumulative values by phase and by exp_count
 
-cumul_c <- by_tube %>% 
+c_tube_daily <- by_tube %>% 
     filter(treatment == 'C') %>% 
-    rename(daily_C_gross = infer_samp_perday,
-           cumul_C_gross = cumul_gross,
-           cumul_C_phase = cumul_phase_gross) %>% 
-    select(sampleID, trt_ID, MC, treatment, exp_count, phase, daily_C_gross, cumul_C_gross, cumul_C_phase)
+    rename(c_daily_gross = infer_samp_perday,
+           c_cumul_gross = cumul_gross,
+           c_cumul_phase = cumul_phase_gross,
+           c_daily_se = tube_se) %>% 
+    select(sampleID, trt_ID, MC, treatment, exp_count, phase, c_daily_gross, c_cumul_gross, c_cumul_phase, c_daily_se)
 
+c_summ_daily <- c_tube_daily %>% 
+    group_by(trt_ID, exp_count) %>% 
+    summarise(c_daily_mean = mean(c_daily_gross))
 
-by_trt_gross <- by_tube %>% 
+c_summ_cumul <- c_tube_daily%>% 
+    group_by(trt_ID, exp_count) %>% 
+    summarise_each(list(~mean(., na.rm=TRUE), ~se), c_cumul_gross) %>% 
+    rename(c_cumul_mean = mean,
+           c_cumul_se = se)  %>%
+    left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% 
+    left_join(c_summ_daily, by = c('trt_ID', 'exp_count')) %>% 
+    select(trt_ID, MC, exp_count, c_daily_mean, everything())
+    
+by_trt_daily <- by_tube %>% 
     group_by(trt_ID, exp_count) %>% 
     summarise_each(list(~mean(., na.rm=TRUE), ~se), infer_samp_perday) %>% 
     rename(trt_gross_daily = mean,
            trt_se_daily = se) %>% 
-    # left_join(cumul_c, by=c(""))
-    mutate(trt_cumul_gross = order_by(exp_count, cumsum(trt_gross_daily)))
-    
-se_by_trt <- unique(by_trt_gross[, c('trt_ID', 'exp_count','trt_se_daily')])
+    left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% #gain MC
+    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # gain C data
+    mutate(trt_daily_diff = trt_gross_daily - c_cumul_mean)
 
-by_trt_diff <- by_tube %>% 
+by_trt_cumul <- by_tube %>% 
     group_by(trt_ID, exp_count) %>% 
-    summarise(trt_daily_diff = mean(infer_diff_perday))
-
-by_trt_diff <- left_join(by_trt_diff, se_by_trt, by=c('trt_ID', 'exp_count'))
-
-
-
-
-
-
-
-
-
-# 
-# 
-# by_trt <- by_tube %>% 
-#     group_by(MC, treatment, exp_count) %>%
-#     summarize_at(vars(infer_samp_perday, infer_diff_perday), mean, na.rm=TRUE) %>% 
-#     rename(mean_daily_samp = infer_samp_perday,
-#            mean_daily_diff = infer_diff_perday)
-# by_trt <- by_trt %>% 
-#     group_by(MC, treatment, exp_count) %>% 
-#     mutate(mean_reps = mean)
-# 
-# 
-# 
-# 
-# # Interpolate daily CO2 + running cumulative values [cumul_data]---------------------------
-# daily_summ <- data8_gapped_interpolated %>% 
-#     group_by(MC, treatment, exp_count) %>%
-#     summarise_each(list(~mean(., na.rm=TRUE), ~se), diff_fromC_perday) %>%
-#     rename(mean_reps = mean, se_reps = se)
-# 
-# # calculate cumulative CO2 respiration for each tube + error
-# 
-# cumul_all_summ <- cumul_all_indiv %>%
-#     group_by(MC, treatment, exp_count) %>%
-#     summarise_each(list(~mean(., na.rm=TRUE), ~se), infer_cumul) %>%
-#     rename(mean_reps = mean, se_reps = se)
-# 
-# 
-# # Generate error bars for sampling days  [errorbar_cumul_C, errorbar_diff_C]-----
-# 
-# # these are the only days that get real bars, since these were true data days
-# errorbar_daily_C <- merge(irga_days, daily_summ, all.x=TRUE)
-# errorbar_cumul_C <- merge(irga_days, cumul_all_summ, all.x=TRUE)
+    summarise_each(list(~mean(., na.rm=TRUE), ~se), cumul_gross) %>% 
+    rename(trt_gross_cumul = mean,
+           trt_se_cumul = se) %>% 
+    left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% #gain MC
+    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_cumul_mean', 'c_cumul_se')], by=c('MC','exp_count')) %>% 
+    mutate(trt_cumul_diff = trt_gross_cumul-c_cumul_mean)
