@@ -56,16 +56,17 @@ by_trt_daily <- by_tube %>%
     group_by(trt_ID, exp_count) %>% 
     summarise_each(list(~mean(., na.rm=TRUE), ~se), infer_samp_perday) %>% 
     rename(trt_gross_daily = mean,
-           trt_se_daily = se) %>% 
-    left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% #gain MC
-    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # gain C data
-    mutate(trt_daily_diff = trt_gross_daily - c_cumul_mean)
+           trt_se_daily = se) # %>% 
 
 by_trt_cumul <- by_tube %>% 
     group_by(trt_ID, exp_count) %>% 
     summarise_each(list(~mean(., na.rm=TRUE), ~se), cumul_gross) %>% 
     rename(trt_gross_cumul = mean,
-           trt_se_cumul = se) %>% 
-    left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% #gain MC
-    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_cumul_mean', 'c_cumul_se')], by=c('MC','exp_count')) %>% 
-    mutate(trt_cumul_diff = trt_gross_cumul-c_cumul_mean)
+           trt_se_cumul = se)
+
+trt_summ <- full_join(by_trt_daily, by_trt_cumul, by=c('trt_ID', 'exp_count')) %>% 
+    left_join(unique(data_ID[,c('trt_ID', 'MC')]), by=c('trt_ID')) %>% #gain MC
+    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_daily_mean', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # gain C data
+    mutate(trt_diff_daily = trt_gross_daily - c_daily_mean,
+           trt_diff_cumul = trt_gross_cumul - c_cumul_mean) %>% 
+    select(trt_ID, MC, exp_count, everything())
