@@ -6,7 +6,7 @@ library(readr)
 
 source(here::here('src/0_exp-1-fxns.R'))
 
-switch_switch <- 0 # 1 is switched
+switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched.csv' else switch_file <- 'switched.csv'
 data0_raw <- read.csv(paste0(here::here('results/all_phases_clean_'), switch_file))
 
@@ -61,7 +61,7 @@ data3_with_C <- left_join(data1_orig, data2_ctrl, by = c("MC", "exp_count"))
 data4_diff <- data3_with_C %>%
     mutate(diff_fromC_perday = samp_co2_perday - MC.C_day_avg)
 
-#Declare variables for unique treatments, labels, tubes, simplified data table [basic_diff]-----
+# Declare variables for unique treatments, labels, tubes, simplified data table-----
 
 # # list of days with measurements for later error bars (possibly deprecated)
 irga_days <- data.frame(exp_count = unique(data4_diff$exp_count)) %>%

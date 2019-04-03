@@ -54,7 +54,7 @@ get_info <- function(fileloc) {
         'integral',
         'inject_num',
         'std_integral') # include this before std_integral in round 2: 'std_time_int'
-    samp <- switch48(samp) # unswitch because it's not necc wrong!
+    # samp <- switch48(samp) # unswitch because it's not necc wrong!
     samp <- samp[colSums(!is.na(samp)) > 0]
     
     # === many lines for converting dates into the correct format ===
@@ -135,5 +135,4 @@ data_p1 <- all_samp %>%
            exp_count = phase_count) %>% 
     arrange(sampleID, exp_count)
 
-# write.csv(data_p1, file = here::here('results/all_clean_p1_switched.csv'), row.names=FALSE)
-    
+write.csv(data_p1, file = here::here('results/all_clean_p1_unswitched.csv'), row.names=FALSE)
