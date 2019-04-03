@@ -6,7 +6,7 @@ source(here::here('src/0_exp-1-fxns.R'))
 
 data_calculated <- read.csv(here::here('results/calculated_unswitched.csv'))
 data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])
-# irga_days <- read.csv(here::here('results/irga_days.csv'))
+irga_days <- read.csv(here::here('results/irga_days.csv'))
 
 # prepping data into two tables for graphing
 # tube table
@@ -65,8 +65,15 @@ by_trt_cumul <- by_tube %>%
            trt_se_cumul = se)
 
 trt_summ <- full_join(by_trt_daily, by_trt_cumul, by=c('trt_ID', 'exp_count')) %>% 
-    left_join(unique(data_ID[,c('trt_ID', 'MC')]), by=c('trt_ID')) %>% #gain MC
+    left_join(unique(data_ID[,c('trt_ID', 'MC', 'treatment','exp_count','interped','phase')]), by=c('trt_ID','exp_count')) %>% #gain MC
     left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_daily_mean', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # gain C data
     mutate(trt_diff_daily = trt_gross_daily - c_daily_mean,
            trt_diff_cumul = trt_gross_cumul - c_cumul_mean) %>% 
     select(trt_ID, MC, exp_count, everything())
+
+
+trt_summ[trt_summ$interped == TRUE,]$c_cumul_se <- NA
+trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
+trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
+
+# write_csv(trt_summ, here::here('results/trts_to_plot.csv'))
