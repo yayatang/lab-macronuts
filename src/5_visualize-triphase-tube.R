@@ -51,6 +51,7 @@ for (i in seq_along(var_to_graph)){
     # i is the type of graph, according to the titles above
     print(i)
 
+<<<<<<< HEAD:src/5_visualize-triphase.R
     minmax_data <- graph_data %>%
         select(trt_ID, exp_count, phase, !!dynamic_data$var_to_graph[[i]], 
                !!dynamic_data$se_to_graph[[i]]) %>% #, !!dynamic_data$graph_group[[i]])
@@ -103,3 +104,8 @@ for (i in seq_along(var_to_graph)){
         ggsave(paste0('results/',i,'_by.tube_', mc_filt, '.png'), width=10, height=8, dpi=600)
     }
 }
+=======
+# ggsave(paste0('results/',i,'_by_', dynamic_data$graph_group[i], '.png'), width=10, height=8, dpi=600)
+ggsave(paste0('results/',i,'_by_', mc_filt, '.png'), width=10, height=8, dpi=600)
+# }
+>>>>>>> 555b00ebc10eee3a94ddb41882c5fad1919136d3:src/5_visualize-triphase-tube.R
