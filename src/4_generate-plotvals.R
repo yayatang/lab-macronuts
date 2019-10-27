@@ -43,28 +43,25 @@ c_tube_daily <- by_tube %>%
 
 c_summ_daily <- c_tube_daily %>% 
     group_by(trt_ID, exp_count) %>% 
-    summarise(c_daily_mean = mean(c_daily_gross))
+    summarise(c_daily_mean = mean(c_daily_gross, na.rm=TRUE))
 
 c_summ_cumul <- c_tube_daily%>% 
     group_by(trt_ID, exp_count) %>% 
-    summarise_each(list(~mean(., na.rm=TRUE), ~se), c_cumul_gross) %>% 
-    rename(c_cumul_mean = mean,
-           c_cumul_se = se)  %>%
+    summarise(c_cumul_mean = mean(c_cumul_gross, na.rm=TRUE),
+              c_cumul_se = se(c_cumul_gross))  %>%
     left_join(data_ID[,c('trt_ID', 'MC', 'exp_count')], by=c('trt_ID', 'exp_count')) %>% 
     left_join(c_summ_daily, by = c('trt_ID', 'exp_count')) %>% 
     select(trt_ID, MC, exp_count, c_daily_mean, everything())
-    
+
 by_trt_daily <- by_tube %>% 
-    group_by(trt_ID, exp_count) %>% 
-    summarise_each(list(~mean(., na.rm=TRUE), ~se), infer_samp_perday) %>% 
-    rename(trt_gross_daily = mean,
-           trt_se_daily = se) # %>% 
+    group_by(trt_ID, exp_count) %>%
+    summarise(trt_gross_daily = mean(infer_samp_perday, na.rm=TRUE),
+              trt_se_daily = se(infer_samp_perday))
 
 by_trt_cumul <- by_tube %>% 
     group_by(trt_ID, exp_count) %>% 
-    summarise_each(list(~mean(., na.rm=TRUE), ~se), cumul_gross) %>% 
-    rename(trt_gross_cumul = mean,
-           trt_se_cumul = se)
+    summarise(trt_gross_cumul = mean(cumul_gross, na.rm=TRUE),
+              trt_se_cumul = se(cumul_gross))
 
 trt_summ <- full_join(by_trt_daily, by_trt_cumul, by=c('trt_ID', 'exp_count')) %>% 
     left_join(unique(data_ID[,c('trt_ID', 'MC', 'treatment','exp_count','interped','phase')]), by=c('trt_ID','exp_count')) %>% #gain MC
@@ -78,4 +75,4 @@ trt_summ[trt_summ$interped == TRUE,]$c_cumul_se <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
 
-write_csv(trt_summ, paste0(here::here('results/trts_to_plot_'), switch_file))
+write_csv(trt_summ, paste0(here::here('results/trts_to_plot_'), switch_file, '.csv'))

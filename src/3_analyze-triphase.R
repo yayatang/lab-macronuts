@@ -39,18 +39,16 @@ data2_ref <- data1_orig %>%
     filter(treatment == 'R') %>%
     select(exp_count, MC, rep, samp_co2_perday) %>%
     group_by(MC, exp_count) %>%
-    summarise_each(list(~mean(., na.rm=TRUE), ~se), samp_co2_perday) %>% 
-    rename(MC.R_day_avg = mean,
-           MC.R_day_se = se)
+    summarise(MC.R_day_avg = mean(samp_co2_perday),
+              MC.R_day_se = se(samp_co2_perday))
 
 # this is for differences between tubes
 data2_ctrl <- data1_orig %>%
     filter(treatment == 'C') %>%
     select(exp_count, MC, rep, samp_co2_perday) %>%
     group_by(MC, exp_count) %>%
-    summarise_each(list(~mean(., na.rm=TRUE), ~se), samp_co2_perday) %>% 
-    rename(MC.C_day_avg = mean,
-           MC.C_day_se = se)
+    summarise(MC.C_day_avg = mean(samp_co2_perday),
+              MC.C_day_se = se(samp_co2_perday))
 
 # Combine data + calculate differences from control-----------------
 
