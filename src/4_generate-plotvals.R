@@ -4,7 +4,7 @@ library(tidyverse)
 
 source(here::here('src/0_exp-1-fxns.R'))
 
-switch_switch <- 1 # 1 is switched
+# switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
 data_calculated <- read.csv(paste0(here::here('results/calculated_'), switch_file,'.csv'))
 data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])

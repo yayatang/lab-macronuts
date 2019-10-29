@@ -6,7 +6,7 @@ library(readr)
 
 source(here::here('src/0_exp-1-fxns.R'))
 
-switch_switch <- 1 # 1 is switched
+# switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched.csv' else switch_file <- 'switched.csv'
 data0_raw <- read.csv(paste0(here::here('results/all_phases_clean_'), switch_file))
 

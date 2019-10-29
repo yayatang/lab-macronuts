@@ -4,7 +4,7 @@ library(plotly)
 library(tidyverse)
 library(here)
 
-switch_switch <- 1 # 1 is switched
+# switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
 
 imported_data <- read.csv(paste0(here::here('results/tubes_to_plot_'),switch_file,'.csv'))
