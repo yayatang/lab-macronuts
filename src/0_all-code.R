@@ -4,8 +4,11 @@ source(here::here('src/1_clean-phase-3-data.R'))
 
 # 1 is switched, needed for next scripts
 switch_switch <- 0
+folder_date <- '2019.11'
 
 source(here::here('src/2_merge-phase-data.R'))
 source(here::here('src/3_analyze-triphase.R'))
 source(here::here('src/4_generate-plotvals.R'))
+source(here::here('src/5_visualize-triphase-tube.R'))
 source(here::here('src/5_visualize-triphase-treatment.R'))
+source(here::here('src/6_end-stats.R'))

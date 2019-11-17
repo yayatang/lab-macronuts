@@ -10,6 +10,9 @@ source(here::here('src/0_exp-1-fxns.R'))
 if (switch_switch == 0) switch_file <- 'unswitched.csv' else switch_file <- 'switched.csv'
 data0_raw <- read.csv(paste0(here::here('results/all_phases_clean_'), switch_file))
 
+# remove outliers
+data0_raw <- remove_outliers(data0_raw)
+
 # Calculate gross daily ppm values [data1_orig]------
 
 # known standard gas CO2 ppm value

@@ -14,12 +14,18 @@ all_triphase <- bind_rows(import_triphase)
 
 # === import tube actual soil values + merge ===
 dsoil_raw <- read.csv(here::here('data/dsoil_actual_phase1.csv'), header=T)
-# dsoil_table <- switch48(dsoil_raw)
-dsoil_table <- dsoil_raw
+
+if (switch_switch == 0){
+    switch_file <- 'unswitched.csv'
+    dsoil_table <- dsoil_raw
+}  else {
+    switch_file <- 'switched.csv'
+    dsoil_table <- switch48(dsoil_raw)
+}
 
 # === merge IRGA data with dry soil data ===
 table_merged <- merge(all_triphase, dsoil_table, by=c('sampleID'))
 data_triphase <- arrange(table_merged, sampleID, exp_count)
 data_triphase_complete <- data_triphase[complete.cases(data_triphase),]
 
-write_csv(data_triphase_complete, here::here('results/all_phases_clean_unswitched.csv'))
+write_csv(data_triphase_complete, here::here(paste0('results/all_phases_clean_',switch_file)))

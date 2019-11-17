@@ -99,8 +99,12 @@ for (j in seq_along(mcs)){
         # print(any_plot)
         p <- ggplotly(any_plot)
         
-        htmlwidgets::saveWidget(as_widget(p), paste(paste0(here::here('results/',switch_file)), i, var_to_graph[i], mc_filt, "by_trt.html", sep="_"))
+        htmlwidgets::saveWidget(as_widget(p), 
+                                paste(here::here('results/',folder_date), switch_file, 
+                                      i, var_to_graph[i], mc_filt, "by.trt.html", sep="_"))
 
-        ggsave(paste(paste0(here::here('results/',switch_file)), i,var_to_graph[i],'by.trt', mc_filt, '.png', sep="_"), width=10, height=8, dpi=600)
+        ggsave(paste(here::here('results/',folder_date), switch_file,
+                     i,var_to_graph[i],'by.trt', mc_filt, '.png', sep="_"), 
+               width=10, height=8, dpi=600)
     }
 }
