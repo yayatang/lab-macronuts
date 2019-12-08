@@ -17,6 +17,7 @@ anti_out3 <- anti_join(out2, out3)
 
 # drafting the function to remove outliers
 remove_outliers <- function(tubes_data) {
+    # remove this section once the function runs
     library(tidyverse)
     switch_file <- 'switched'
     tubes_data <- read.csv(paste0(here::here('results/tubes_to_plot_'),switch_file,'.csv'))
@@ -32,5 +33,7 @@ remove_outliers <- function(tubes_data) {
     tubes_data2 <- anti_join(tubes_data, out_points)
     
     deleted_tubes <- anti_join(tubes_data, tubes_data2)    
+    
+    # second, remove individual tubes that are extra crazy
     
 }
