@@ -6,7 +6,7 @@ library(here)
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-imported_data <- read.csv(paste0(here::here('results/tubes_to_plot_'),switch_file,'.csv'))
+imported_data <- read.csv(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.csv'))
 
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
 max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
@@ -102,16 +102,15 @@ for (i in seq_along(var_to_graph)){
         p <- ggplotly(any_plot)
         # p
         
-        htmlwidgets::saveWidget(as_widget(p), paste(switch_file, i, var_to_graph[i], mc_filt, "by.tube.html", sep="_"))
-        # htmlwidgets::saveWidget(as_widget(p), 
-        #                         paste(here::here('results/',folder_date),
-        #                               switch_file, i, var_to_graph[i], mc_filt,
-        #                               "by.tube.html", sep="_"))
+        # htmlwidgets::saveWidget(as_widget(p), paste(switch_file, i, var_to_graph[i], mc_filt, "by.tube.html", sep="_"))
+        htmlwidgets::saveWidget(as_widget(p),
+                                paste(here::here('results/',folder_date),
+                                      switch_file, i, var_to_graph[i], mc_filt,
+                                      "by.tube.html", sep="_"))
         
-        ggsave(paste(switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png', sep="_"), width=10, height=8, dpi=600)
-        # ggsave(paste(here::here('results/',folder_date), 
-        #              switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png',
-        #              sep="_"), width=10, height=8, dpi=600)
-        
+        # ggsave(paste(switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png', sep="_"), width=10, height=8, dpi=600)
+        ggsave(paste(here::here('results/',folder_date),
+                     switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png',
+                     sep="_"), width=10, height=8, dpi=600)
     }
 }

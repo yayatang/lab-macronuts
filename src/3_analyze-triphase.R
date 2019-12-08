@@ -8,10 +8,10 @@ source(here::here('src/0_exp-1-fxns.R'))
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched.csv' else switch_file <- 'switched.csv'
-data0_raw <- read.csv(paste0(here::here('results/all_phases_clean_'), switch_file))
+data0_raw <- read.csv(paste0(here::here('results/2_clean_all_phases_'), switch_file))
 
 # remove outliers
-data0_raw <- remove_outliers(data0_raw)
+if(outlier_bool == TRUE) data0_raw <- remove_outliers(data0_raw)
 
 # Calculate gross daily ppm values [data1_orig]------
 
@@ -112,5 +112,5 @@ data8_gapped_interpolated <- data7_gapped_full %>%
 calculated_data <- data8_gapped_interpolated %>% 
     select(sampleID, exp_count, samp_co2_perday, diff_fromC_perday, infer_samp_perday, infer_diff_perday, everything())
 
-write_csv(calculated_data, here::here(paste0('results/calculated_',switch_file)))
-# write_csv(irga_days, here::here('results/irga_days.csv'))
+write_csv(calculated_data, here::here(paste0('results/3_calculated_',switch_file)))
+write_csv(irga_days, here::here('results/irga_days.csv'))

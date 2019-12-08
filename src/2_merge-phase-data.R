@@ -28,4 +28,4 @@ table_merged <- merge(all_triphase, dsoil_table, by=c('sampleID'))
 data_triphase <- arrange(table_merged, sampleID, exp_count)
 data_triphase_complete <- data_triphase[complete.cases(data_triphase),]
 
-write_csv(data_triphase_complete, here::here(paste0('results/all_phases_clean_',switch_file)))
+write_csv(data_triphase_complete, here::here(paste0('results/2_clean_all_phases_',switch_file)))

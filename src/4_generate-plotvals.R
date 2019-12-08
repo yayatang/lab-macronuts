@@ -5,7 +5,7 @@ source(here::here('src/0_exp-1-fxns.R'))
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-data_calculated <- read.csv(paste0(here::here('results/calculated_'), switch_file,'.csv'))
+data_calculated <- read.csv(paste0(here::here('results/3_calculated_'), switch_file,'.csv'))
 data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])
 irga_days <- read.csv(here::here('results/irga_days.csv'))
 
@@ -24,7 +24,7 @@ by_tube <- data_calculated %>%
     select(sampleID, trt_ID, MC, treatment, exp_count, phase, phase_count, total_time_incub, infer_samp_perday, 
            infer_diff_perday, cumul_gross, cumul_diff, cumul_phase_gross, cumul_phase_diff, tube_se)
 
-write_csv(by_tube, paste0(here::here('results/tubes_to_plot_'), switch_file,'.csv'))
+write_csv(by_tube, paste0(here::here('results/4_tubes_to_plot_'), switch_file,'.csv'))
 
 #------------------------------------
 
@@ -74,4 +74,4 @@ trt_summ[trt_summ$interped == TRUE,]$c_cumul_se <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
 
-write_csv(trt_summ, paste0(here::here('results/trts_to_plot_'), switch_file, '.csv'))
+write_csv(trt_summ, paste0(here::here('results/4_trts_to_plot_'), switch_file, '.csv'))

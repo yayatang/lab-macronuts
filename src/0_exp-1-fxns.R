@@ -37,14 +37,15 @@ remove_outliers <- function(tubes_data) {
     filter(exp_count != 'all') %>% 
     mutate(exp_count = as.numeric(exp_count))
   
+  # second, remove the erratic tubes [***BUT DOUBLE CHECK THESE**]
   out_tubes <- out_data %>% 
     filter(exp_count == 'all') %>% 
     select(sampleID)
   
+  # make df of points not to remove
   tubes_data2 <- anti_join(tubes_data, out_points)
   deleted_tubes <- anti_join(tubes_data, tubes_data2)    
   deleted_tubes
   
   tubes_data3 <- anti_join(tubes_data2, out_tubes)
-  
 }
