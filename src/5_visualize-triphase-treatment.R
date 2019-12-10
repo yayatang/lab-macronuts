@@ -1,4 +1,4 @@
-#  for visualizing data of treatment data
+#  for visualizing data of summarized treatment data
 library(viridis)
 library(plotly)
 library(tidyverse)
