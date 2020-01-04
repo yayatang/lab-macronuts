@@ -6,7 +6,7 @@ library(here)
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-imported_data <- read.csv(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.csv'))
+imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.rds'))
 
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
 max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
