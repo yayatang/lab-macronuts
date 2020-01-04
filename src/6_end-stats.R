@@ -1,16 +1,16 @@
 # This script is for generating plots for end-of-experiment data
 library(viridis)
 library(tidyverse)
-# library(ggpubr)
+library(ggpubr)
 library(ggpmisc)
 library(plotly)
 library(here)
 source(here::here('src/0_exp-1-fxns.R'))
 
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-imported_data <- read_csv(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.csv')) %>% 
+imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.rds')) %>% 
     filter(treatment != 'R')
-levels(imported_data$treatment) <- c('C', '8', '7', '6', '5', '4', '3', '2', '1')
+trt_levels <- c('C', '8', '7', '6', '5', '4', '3', '2', '1')
 
 # filter data to only include final cumulative differences
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
@@ -21,6 +21,38 @@ end_p1 <- filter(imported_data, exp_count == max_p1)
 end_p2 <- filter(imported_data, exp_count == max_p2)
 end_p3 <- filter(imported_data, exp_count == max_p3)
 end_p <- list(end_p1, end_p2, end_p3)
+
+amend_trts <- read_csv(here::here('data/protein_treatments.csv'))
+end_percent <- left_join(end_p3, amend_trts) %>% 
+    group_by(MC)
+
+# graph faceted boxplots at the end of each phase
+end_all <- rbind(end_p1, end_p2, end_p3)
+cumul_gr_plot <- ggboxplot(end_all, x = 'MC', y = 'cumul_gross',
+                           color = 'treatment', 
+                           title = paste0('Cumulative C by tube at end of each phase, gross C'), 
+                           xlab = 'treatment',
+                           ylab = 'cumul gross co2 by tube',
+                           legend = 'right')
+# cumul_gr_plot
+facet(cumul_gr_plot, facet.by='phase')
+ggsave(paste(here::here('results/', folder_date), '6', switch_file, 
+             'facet.phases_boxplot_cumul_gross.png', sep="_"), width=10, height=8, dpi=600)
+
+
+
+#cumulative values in a violin plot
+cumul_gr_viol <- end_data %>% 
+    ggplot(aes(x = MC, y = cumul_gross))+
+    geom_violin()+
+    scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
+    theme(legend.position="none",
+          plot.title = element_text(size=11)) +
+    ggtitle("Violin chart") +
+    xlab("MC")
+cumul_gr_viol
+
+
 
 # ==== decide which phase to check ====
 # k <- 2
@@ -40,11 +72,8 @@ for (k in seq_along(end_p))
     # table(end_data$MC, end_data$treatment)
     
     # boxplots for C mineralization of all by treatment and MC
-    cumul_gr_plot <- ggboxplot(end_data, x = 'MC', y = 'cumul_gross',
-                               color = 'treatment', 
-                               title = paste0('C by tube at end of phase ',k,', gross C'), 
-                               xlab = 'treatment',
-                               ylab = 'cumul gross co2 by tube')
+
+    
     # theme(legend.position='none')
     # ggsave(paste(paste0(here::here('results/',switch_file)), 'phase', k, 'boxplot_cumul_gross.png', sep="_"), width=10, height=8, dpi=600)
     ggsave(paste(here::here('results/', folder_date), '6', switch_file, 'phase',
@@ -65,6 +94,7 @@ for (k in seq_along(end_p))
                  k, 'boxplot_cumul_dif.png', sep="_"), width=10, height=8, dpi=600)
     
 }
+
 # ==== summary stats=====
 
 # C mineralization GROSS means by treatment
@@ -135,14 +165,14 @@ TukeyHSD(res.diff.aov2, which="treatment")
 
 
 # ==== graphs for protein content vs cumulative CO2 at end ====
+my_formula <- y ~ poly(x, 2)
+# my_formula <- y ~ x
 
-protein_trts <- read_csv(here::here('data/protein_treatments.csv'))
-end_percent <- left_join(end_data, protein_trts)
 end_protein <- select(end_percent, -carb_prop) 
 cbPalette <- viridis(10)
 
 # # checking without the control
-end_protein <- filter(end_protein, treatment != 'C')
+# end_protein <- filter(end_protein, treatment != 'C')
 
 ggscatter(end_protein, x = 'protein_prop', y = 'cumul_gross',
           color = 'treatment',
@@ -150,13 +180,24 @@ ggscatter(end_protein, x = 'protein_prop', y = 'cumul_gross',
           palette = cbPalette,
           title = 'protein proportion vs CO2: ALL',
           legend = 'right',
-          add = "reg.line", conf.int = T,
+          # add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75)) +
-    # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  
-    stat_cor(method = "pearson", label.x = 0)
+    # stat_cor(method = "pearson", label.x = 0)
+    
+    stat_smooth(aes(y=cumul_gross),
+                method = "lm",
+                formula = my_formula, se = T, size = 0.75) +
+    stat_poly_eq(formula = my_formula, 
+                 aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                 parse = TRUE) +
+    stat_poly_eq(aes(label = ..AIC.label..),
+                 label.x = "right", label.y = "bottom", size = 3,
+                 formula = my_formula,
+                 parse = TRUE)
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_prot_ALL.png',
              sep="_"), width=10, height=8, dpi=600)
+
 
 end_prot_bu <- filter(end_protein, MC=='BU')
 ggscatter(end_prot_bu, x = 'protein_prop', y='cumul_gross',
@@ -164,10 +205,16 @@ ggscatter(end_prot_bu, x = 'protein_prop', y='cumul_gross',
           palette = cbPalette,
           title = 'protein proportion vs CO2: BU',
           legend = 'right',
-          add = "reg.line", conf.int = T,
+          # add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75))+
-    # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  
-    stat_cor(method = "pearson", label.x = 0)
+    # stat_cor(method = "pearson", label.x = 0, label.y = 20000) +
+    # stat_regline_equation(label.x =0)
+    stat_poly_eq(formula = y ~ x, aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE) +
+    stat_smooth(aes(y=cumul_gross), method = "lm",formula = y ~ x , se = T, size = 0.75) +
+    # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2)) +
+    # stat_poly_eq(formula = y ~ x,aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE)
+    stat_poly_eq(aes(label = ..AIC.label..), label.x = "right", label.y = "bottom", size = 3, formula = y ~ x,  parse = TRUE)
+
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_prot_BU.png',
              sep="_"), width=10, height=8, dpi=600)
@@ -180,8 +227,12 @@ ggscatter(end_prot_bg, x = 'protein_prop', y='cumul_gross',
           legend = 'right',
           add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75))+
-    # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  
-    stat_cor(method = "pearson", label.x = 0)
+    # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  # quadratic fitting
+    # stat_cor(method = "pearson", label.x = 0)
+    stat_poly_eq(formula = y ~ x, aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE) +
+    stat_smooth(aes(y=cumul_gross), method = "lm",formula = y ~ x , se = T, size = 0.75) +
+    stat_poly_eq(aes(label = ..AIC.label..), label.x = "right", label.y = "bottom", size = 3, formula = y ~ x,  parse = TRUE)
+
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_prot_BG.png',
              sep="_"), width=10, height=8, dpi=600)
@@ -196,7 +247,11 @@ ggscatter(end_prot_gu, x = 'protein_prop', y='cumul_gross',
           add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75))+
     # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  
-    stat_cor(method = "pearson", label.x = 0)
+    # stat_cor(method = "pearson", label.x = 0)
+    stat_poly_eq(formula = y ~ x, aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE) +
+    stat_smooth(aes(y=cumul_gross), method = "lm",formula = y ~ x , se = T, size = 0.75) +
+    stat_poly_eq(aes(label = ..AIC.label..), label.x = "right", label.y = "bottom", size = 3, formula = y ~ x,  parse = TRUE)
+
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_prot_GU.png',
              sep="_"), width=10, height=8, dpi=600)
@@ -210,12 +265,18 @@ ggscatter(end_prot_gg, x = 'protein_prop', y='cumul_gross',
           add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75))+
     # stat_smooth(aes(y=cumul_gross), method = "lm", formula = y ~ x + I(x^2))  
-    stat_cor(method = "pearson", label.x = 0)
+    # stat_cor(method = "pearson", label.x = 0)
+    stat_poly_eq(formula = y ~ x, aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), parse = TRUE) +
+    stat_smooth(aes(y=cumul_gross), method = "lm",formula = y ~ x , se = T, size = 0.75) +
+    stat_poly_eq(aes(label = ..AIC.label..), label.x = "right", label.y = "bottom", size = 3, formula = y ~ x,  parse = TRUE)
+
+
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_prot_GG.png',
              sep="_"), width=10, height=8, dpi=600)
 
 
+#================================================
 
 # ==== graphs for carbs ====
 end_carb <- select(end_percent, -protein_prop)
@@ -313,7 +374,6 @@ ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_propor_ALL.png',
              sep="_"), width=10, height=8, dpi=600)
 
-my_formula <- y ~ poly(x, 2)
 end_propor_bu <- filter(end_propor, MC=='BU')
 ggscatter(end_propor_bu, x = 'propor_prop', y='cumul_gross',
           color = 'treatment',
@@ -322,18 +382,22 @@ ggscatter(end_propor_bu, x = 'propor_prop', y='cumul_gross',
           legend = 'right',
           # add = "reg.line", conf.int = T,
           add.params = list(color = "black", fill = "grey", size = 0.75))+
-    stat_poly_eq(formula = my.formula, 
-                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
-                parse = TRUE)
-    
     stat_smooth(aes(y=cumul_gross), 
                 method = "lm", 
                 # formula = y ~ x + I(x^2))
-                formula = my_formula, se = T, size = 0.75)
-    # stat_cor(method = "pearson", label.x = 0)
-    ggsave(paste(here::here('results/',folder_date),
-                 switch_file, 'end_propor_BU.png',
-                 sep="_"), width=10, height=8, dpi=600)
+                formula = my_formula_quad, se = T, size = 0.75) +
+    stat_poly_eq(formula = my_formula, 
+                 aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                 parse = TRUE) + 
+    stat_poly_eq(aes(label = ..AIC.label..),
+                 label.x = "right", label.y = "bottom", size = 3,     
+                 formula = my_formula, 
+                 parse = TRUE)
+
+# stat_cor(method = "pearson", label.x = 0)
+ggsave(paste(here::here('results/',folder_date),
+             switch_file, 'end_propor_BU.png',
+             sep="_"), width=10, height=8, dpi=600)
 
 end_propor_bg <- filter(end_propor, MC=='BG')
 ggscatter(end_propor_bg, x = 'propor_prop', y='cumul_gross',
@@ -377,3 +441,32 @@ ggscatter(end_propor_gg, x = 'propor_prop', y='cumul_gross',
 ggsave(paste(here::here('results/',folder_date),
              switch_file, 'end_propor_GG.png',
              sep="_"), width=10, height=8, dpi=600)
+
+#=============================
+# trying new things for linear models
+
+amend_props <- read_csv(here::here('data/protein_treatments.csv'))
+data_by_MC <- left_join(end_data, amend_props) %>% 
+    group_by(MC) %>% 
+    nest()
+data_by_MC
+
+MC_model <- function(df){
+    lm(cumul_gross ~ protein_prop, data = df)
+}
+
+data_by_MC <- data_by_MC %>% 
+    mutate(model = map(data, MC_model))
+data_by_MC
+
+data_by_MC <- data_by_MC %>% 
+    mutate(resids = map2(data, model, add_residuals)
+    )
+
+resids <- unnest(data_by_MC, resids)
+resids
+
+resids %>% 
+    ggplot(aes(trt_ID, resid)) +
+    geom_line(aes(group = MC), alpha = 1/3) + 
+    geom_smooth(se = FALSE)
