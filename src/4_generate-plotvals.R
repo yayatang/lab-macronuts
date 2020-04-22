@@ -73,4 +73,8 @@ trt_summ[trt_summ$interped == TRUE,]$c_cumul_se <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
 
+# fix treatment factor levels
+trt_levels <- factor(c('R', 'C', '8', '7', '6', '5', '4', '3', '2', '1'))
+trt_summ$treatment <- factor(trt_summ$treatment, levels = trt_levels)
+
 write_rds(trt_summ, paste0(here::here('results/4_trts_to_plot_'), switch_file, '.rds'))
