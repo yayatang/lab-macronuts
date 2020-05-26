@@ -109,7 +109,14 @@ get_info <- function(fileloc) {
     # as.numeric keeps it from being a difftime object and dropping the unncessary info of units=hours
     
     # === return relevant variables ===
-    master <- select(samp, sampleID, incub_count, total_time_incub, integral, inject_num, std_vector)
+    master <- select(samp, 
+                     sampleID, 
+                     tube_num,
+                     incub_count, 
+                     total_time_incub, 
+                     integral, 
+                     inject_num, 
+                     std_vector)
 }
 
 # Import all tables and flatten all samplings into one data frame------

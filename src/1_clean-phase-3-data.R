@@ -143,6 +143,7 @@ get_info <- function(fileloc) {
     master <-
         select(samp,
                sampleID,
+               tube_num,
                incub_count,
                total_time_incub,
                integral,

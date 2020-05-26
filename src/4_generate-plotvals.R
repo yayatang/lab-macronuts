@@ -3,13 +3,13 @@ library(tidyverse)
 source(here::here('src/0_exp-1-fxns.R'))
 
 # switch_switch <- 1 # 1 is switched
-if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-data_calculated <- read.csv(paste0(here::here('results/3_calculated_'), switch_file,'.csv'))
+if (switch_switch == 0) switch_file <- 'unswitched.rds' else switch_file <- 'switched.rds'
+data_calculated <- read_rds(paste0(here::here('results/3_calculated_'), switch_file))
 data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])
-# irga_days <- read.csv(here::here('results/irga_days.csv'))
+# irga_days <- read_rds(here::here('results/irga_days.rds'))
 
 # prepping data into two tables for graphing
-# tube table
+# table by individual tubes
 # 0) daily values ready 1) calculate cumulative vals, 2) calculate phase cumulative vals
 by_tube <- data_calculated %>% 
     group_by(sampleID) %>%
@@ -20,10 +20,12 @@ by_tube <- data_calculated %>%
     group_by(sampleID, phase) %>%
     mutate(cumul_phase_gross = order_by(exp_count, cumsum(infer_samp_perday)),
            cumul_phase_diff = order_by(exp_count, cumsum(infer_diff_perday))) %>% 
-    select(sampleID, trt_ID, MC, treatment, exp_count, phase, phase_count, total_time_incub, infer_samp_perday, 
-           infer_diff_perday, cumul_gross, cumul_diff, cumul_phase_gross, cumul_phase_diff, tube_se)
+    select(sampleID, trt_ID, MC, treatment, 
+           exp_count, phase, phase_count, interped,
+           total_time_incub, infer_samp_perday, infer_diff_perday, 
+           cumul_gross, cumul_diff, cumul_phase_gross, cumul_phase_diff, tube_se)
 
-write_rds(by_tube, paste0(here::here('results/4_tubes_to_plot_'), switch_file,'.rds'))
+write_rds(by_tube, paste0(here::here('results/4_tubes_to_plot_'), switch_file))
 
 #------------------------------------
 
@@ -37,7 +39,8 @@ c_tube_daily <- by_tube %>%
            c_cumul_gross = cumul_gross,
            c_cumul_phase = cumul_phase_gross,
            c_daily_se = tube_se) %>% 
-    select(sampleID, trt_ID, MC, treatment, exp_count, phase, c_daily_gross, c_cumul_gross, c_cumul_phase, c_daily_se)
+    select(sampleID, trt_ID, MC, treatment, exp_count, phase, 
+           c_daily_gross, c_cumul_gross, c_cumul_phase, c_daily_se)
 
 c_summ_daily <- c_tube_daily %>% 
     group_by(trt_ID, exp_count) %>% 
@@ -74,7 +77,7 @@ trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
 
 # fix treatment factor levels
-trt_levels <- factor(c('R', 'C', '8', '7', '6', '5', '4', '3', '2', '1'))
-trt_summ$treatment <- factor(trt_summ$treatment, levels = trt_levels)
+# trt_levels <- factor(c('R', 'C', '8', '7', '6', '5', '4', '3', '2', '1'))
+# trt_summ$treatment <- factor(trt_summ$treatment, levels = trt_levels)
 
-write_rds(trt_summ, paste0(here::here('results/4_trts_to_plot_'), switch_file, '.rds'))
+write_rds(trt_summ, paste0(here::here('results/4_trts_to_plot_'), switch_file))
