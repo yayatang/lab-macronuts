@@ -108,11 +108,11 @@ for (i in seq_along(var_to_graph)){
         htmlwidgets::saveWidget(as_widget(p),
                                 paste(here::here('results/',folder_date),
                                       switch_file, i, var_to_graph[i], mc_filt,
-                                      "by.tube.html", sep="_"))
+                                      'by.tube.html', sep='_'))
 
         # ggsave(paste(switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png', sep="_"), width=10, height=8, dpi=600)
         ggsave(paste(here::here('results/',folder_date),
-                     switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png',
+                     switch_file, i,var_to_graph[i],mc_filt, 'by.tube.png',
                      sep="_"), width=10, height=8, dpi=600)
     }
 }
