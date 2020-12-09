@@ -18,10 +18,10 @@ dsoil_raw <- read_csv(here::here('data/dsoil_actual_phase1.csv')) %>%
 dsoil_raw$treatment <- as.factor(dsoil_raw$treatment)
 
 if (switch_switch == 0){
-    switch_file <- 'unswitched.rds'
+    switch_file <- 'unswitched'
     dsoil_table <- dsoil_raw
 }  else {
-    switch_file <- 'switched.rds'
+    switch_file <- 'switched'
     dsoil_table <- switch48(dsoil_raw)
 }
 
@@ -46,4 +46,4 @@ data_triphase_complete <- table_merged[complete.cases(table_merged),]
 
 ##### write file 
 write_rds(data_triphase_complete, 
-          here::here(paste0('results/2_clean_all_phases_',switch_file)))
+          here::here(paste0('results/2_clean_all_phases_',switch_file,'.rds')))
