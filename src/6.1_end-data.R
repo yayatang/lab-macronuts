@@ -3,12 +3,13 @@
 # Question: How do each of my explanatory variables affect the overall fxn / 
 # rates of respiration?
 
-save_toggle <- FALSE
+
+#====== Code starts here
 
 # when running this script alone:
-switch_switch <- 1 # switch_switch = 1 means switched
+# switch_switch <- 1 # switch_switch = 1 means switched
 library(lubridate)
-folder_date <- gsub("-", ".",today())
+# folder_date <- gsub("-", ".",today())
 
 #### library, packages ####
 list.of.packages <- c('here', 'tidyverse', 'ggpubr', 'ggpmisc', 
@@ -21,18 +22,16 @@ source(here::here('src/0_exp-1-fxns.R'))
 
 #### import data ####
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.rds'))# %>% 
-# filter(treatment != 'R')
-imported_data$treatment <- imported_data$treatment %>% 
-    # fct_drop() %>% 
-    fct_rev()
-fct_lvls_imported <- levels(imported_data$treatment) 
+outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
+
+imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'), 
+                                 outlier_name, switch_file,'.rds'))
+levels(imported_data$treatment)
 
 # import amendment protein proportions
-amend_trts <- read_csv(here::here('data/protein_treatments.csv'))
-amend_trts$treatment <- factor(amend_trts$treatment)
-amend_trts$treatment <- amend_trts$treatment %>% 
-    fct_rev()
+amend_trts <- read_csv(here::here('data/protein_treatments.csv')) %>% 
+    mutate(treatment = fct_rev(treatment))
+# levels(amend_trts$treatment)
 
 #### CN data processing ####
 CN_raw <- read_csv(here::here('data/elemental analysis/exp1_CN_data.csv'))
@@ -52,9 +51,9 @@ data_CN[which(data_CN$pH == 'na'),]$pH <- NA
 
 #split up the table into three types of samples: litter, soil, treatments
 site_use <- tibble(MC = as_factor(c('BU', 'BG', 'GU', 'GG')),
-                   site = as_factor(c(rep('Beit Guvrin', 2), 
-                                      rep('Golan Heights', 2))),
-                   land_use = as_factor(rep(c('ungrazed', 'grazed'), 2)))
+                   location = as_factor(c(rep('Beit Guvrin', 2), 
+                                          rep('Golan Heights', 2))),
+                   grazing = as_factor(rep(c('ungrazed', 'grazed'), 2)))
 
 CN_lit <- data_CN[which(data_CN$sample_name == 'litter_1g'),]
 CN_soils <- data_CN[which(data_CN$sample_name %in% c('BU', 'BG', 'GU', 'GG')),] %>% 
@@ -75,23 +74,25 @@ CN_soils_long <- CN_soils %>%
            source = 'soil',
            percent_element = element_mg / sample_mass * 100)
 
-#### determine end of phase variables ####
-# filter data to only include final cumulative differences
-max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
-max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
-max_p3 <- max(filter(imported_data, phase == 3)$exp_count)
-
-end_p1 <- filter(imported_data, exp_count == max_p1)
-end_p2 <- filter(imported_data, exp_count == max_p2)
-end_p3 <- filter(imported_data, exp_count == max_p3)
-end_p <- list(end_p1, end_p2, end_p3)
-
-## ** needs fixing the treatment levels
-end_percent <- left_join(end_p3, amend_trts) %>% 
-    group_by(MC)
-
-end_data <- rbind(end_p1, end_p2, end_p3) %>% 
+#### merge imported data with elemental analysis ####
+all_data <- imported_data %>% 
     left_join(amend_trts) %>% 
     left_join(CN_soils)
 
-write_rds(end_data, paste0(here::here('results/end_data_'), switch_file, '.rds'))
+#### determine end of phase variables ####
+# filter data to only include final cumulative differences
+max_p1 <- max(filter(all_data, phase == 1)$exp_count)
+max_p2 <- max(filter(all_data, phase == 2)$exp_count)
+max_p3 <- max(filter(all_data, phase == 3)$exp_count)
+
+end_p1 <- filter(all_data, exp_count == max_p1)
+end_p2 <- filter(all_data, exp_count == max_p2)
+end_p3 <- filter(all_data, exp_count == max_p3)
+
+phase_ends_list <- list(end_p1, end_p2, end_p3)
+phase_ends_rows <- rbind(end_p1, end_p2, end_p3)
+
+# data from the ends of each phase, in one table
+write_rds(phase_ends_rows, paste0(here::here('results/6_end_data_rows_'),  outlier_name, switch_file, '.rds'))    
+# data from the ends of each phase, in list format
+write_rds(phase_ends_list, paste0(here::here('results/6_end_data_by_list_'), outlier_name, switch_file, '.rds'))

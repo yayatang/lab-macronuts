@@ -6,8 +6,9 @@ library(here)
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
+outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
 
-imported_data <- read_rds(paste0(here::here('results/4_trts_to_plot_'),switch_file,'.rds'))
+imported_data <- read_rds(paste0(here::here('results/4_trts_to_plot_'), outlier_name, switch_file, '.rds'))
 
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
 max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
@@ -101,10 +102,10 @@ for (j in seq_along(mcs)){
         p <- ggplotly(any_plot)
         
         htmlwidgets::saveWidget(as_widget(p), 
-                                paste(here::here('results/',folder_date), switch_file, 
+                                paste(here::here('results/',folder_date), outlier_name, switch_file, 
                                       i, var_to_graph[i], mc_filt, "by.trt.html", sep="_"))
 
-        ggsave(paste(here::here('results/',folder_date), switch_file,
+        ggsave(paste(here::here('results/',folder_date), outlier_name, switch_file,
                      i,var_to_graph[i],'by.trt', mc_filt, '.png', sep="_"), 
                width=10, height=8, dpi=600)
     }

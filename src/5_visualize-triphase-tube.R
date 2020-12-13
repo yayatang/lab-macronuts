@@ -6,7 +6,10 @@ library(here)
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'),switch_file,'.rds'))
+outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
+
+imported_data <- read_rds(paste0(here::here('results/4_tubes_to_plot_'), outlier_name, switch_file,'.rds'))
+
 
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
 max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
@@ -106,18 +109,19 @@ for (i in seq_along(var_to_graph)){
 
         # htmlwidgets::saveWidget(as_widget(p), paste(switch_file, i, var_to_graph[i], mc_filt, "by.tube.html", sep="_"))
         htmlwidgets::saveWidget(as_widget(p),
-                                paste(here::here('results/',folder_date),
+                                paste(here::here('results/',folder_date), outlier_name,
                                       switch_file, i, var_to_graph[i], mc_filt,
                                       'by.tube.html', sep='_'))
 
         # ggsave(paste(switch_file, i,var_to_graph[i],'by.tube', mc_filt, '.png', sep="_"), width=10, height=8, dpi=600)
-        ggsave(paste(here::here('results/',folder_date),
+        ggsave(paste(here::here('results/',folder_date), outlier_name,
                      switch_file, i,var_to_graph[i],mc_filt, 'by.tube.png',
                      sep="_"), width=10, height=8, dpi=600)
     }
 }
 
 # ==== RAW:to generate only the inferred samp per day ====
+# does not include outlier renaming scheme
 # var_to_graph <- 'infer_samp_perday'
 # tubes_by_trt <- unique(graph_data$trt_ID)
 # 

@@ -12,7 +12,7 @@ if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switche
 data0_raw <- read_rds(paste0(here::here('results/2_clean_all_phases_'), switch_file, '.rds'))
 
 # remove outliers
-if(outlier_bool ==TRUE) data0_raw <- remove_outliers(data0_raw)
+if(outlier_bool == FALSE) data0_raw <- remove_outliers(data0_raw)
 
 #### Calculate gross daily ppm values [data1_orig]------
 # known standard gas CO2 ppm value
@@ -117,5 +117,7 @@ calculated_data <- data8_gapped_interpolated %>%
     select(sampleID, trt_ID, exp_count, samp_co2_perday, diff_fromC_perday, 
            infer_samp_perday, infer_diff_perday, everything())
 
-write_rds(calculated_data, here::here(paste0('results/3_calculated_',switch_file,'.rds')))
+outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_')
+
+write_rds(calculated_data, here::here(paste0('results/3_calculated_', outlier_name, switch_file,'.rds')))
 write_rds(irga_days, here::here('results/irga_days.rds'))

@@ -4,7 +4,9 @@ source(here::here('src/0_exp-1-fxns.R'))
 
 # switch_switch <- 1 # 1 is switched
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
-data_calculated <- read_rds(paste0(here::here('results/3_calculated_'), switch_file, '.rds'))
+outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_')
+
+data_calculated <- read_rds(paste0(here::here('results/3_calculated_'), outlier_name, switch_file, '.rds'))
 data_ID <- unique(data_calculated[, c('trt_ID', 'MC', 'treatment','exp_count', 'phase','interped')])
 # irga_days <- read_rds(here::here('results/irga_days.rds'))
 
@@ -25,7 +27,9 @@ by_tube <- data_calculated %>%
            total_time_incub, infer_samp_perday, infer_diff_perday, 
            cumul_gross, cumul_diff, cumul_phase_gross, cumul_phase_diff, tube_se)
 
-write_rds(by_tube, paste0(here::here('results/4_tubes_to_plot_'), switch_file,'.rds'))
+# write_rds(by_tube, paste0(here::here('results/4_tubes_to_plot_'), switch_file,'.rds'))
+write_rds(by_tube, paste0(here::here('results/4_tubes_to_plot_'), outlier_name, switch_file,'.rds'))
+
 
 #------------------------------------
 
@@ -80,5 +84,4 @@ trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
 # trt_levels <- factor(c('R', 'C', '8', '7', '6', '5', '4', '3', '2', '1'))
 # trt_summ$treatment <- factor(trt_summ$treatment, levels = trt_levels)
 
-outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
 write_rds(trt_summ, paste0(here::here('results/4_trts_to_plot_'), outlier_name, switch_file,'.rds'))
