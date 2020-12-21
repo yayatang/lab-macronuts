@@ -85,7 +85,7 @@ for (i in seq_along(var_to_graph)){
             ungroup() %>%
             rename(Treatment = trt_ID)
 
-        cbPalette <- viridis(10)
+        cbPalette <- rev(viridis(10))
 
         any_plot <- ggplot(plot_data, aes(exp_count, graph_yvar, color=Treatment, group=sampleID)) +
             ylim(min_y, max_y) +
@@ -98,6 +98,7 @@ for (i in seq_along(var_to_graph)){
             labs(x="Experimental days lapsed", y=dynamic_data$y_titles[[i]]) +
             ggtitle(paste(dynamic_data$plot_titles[[i]], mc_filt)) +
             scale_color_manual(values = cbPalette) +
+            guides(color = guide_legend(reverse = TRUE)) + 
             theme(plot.title = element_text(hjust = 0.5),
                   panel.border = element_blank(),
                   panel.background = element_blank(),
