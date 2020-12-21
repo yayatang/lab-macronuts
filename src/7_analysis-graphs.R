@@ -1,20 +1,21 @@
 # 7_graphs
+# graphs only for end of phase or experiment protein proportion vs CO2
+
 library(tidyverse)
 library(viridis)
 
-save_toggle <- FALSE #turn to false when trying new snippets of code
+save_toggle <- TRUE #turn to false when trying new snippets of code
 
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
 outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
 
-end_data <- read_rds(paste0(here::here('results/6_end_data_rows_'), outlier_name, switch_file, '.rds')) %>% 
-    filter(treatment != 'R')  %>% 
+end_data <- read_rds(paste0(here::here('results/6_end_data_rows_'), outlier_name, switch_file, '.rds')) %>%     filter(treatment != 'R')  %>% 
     ungroup()
 
 end_p <- read_rds(paste0(here::here('results/6_end_data_by_list_'), outlier_name, switch_file, '.rds'))
 
-##### GRAPHS ALREADY ######
-# graph faceted boxplots at the end of each phase
+##### GRAPHS  ######
+# graph faceted boxplots at the end of each phase for the cumulative gross 
 
 cbPalette <- rev(viridis(10))
 
@@ -89,7 +90,6 @@ for (k in seq_along(end_p)){
         ggsave(paste(here::here('results/', folder_date), '7', outlier_name, 
                      switch_file, 'phase', k, 'boxplot_cumul_dif.png', sep="_"),
                width=10, height=8, dpi=600)
-    
 }
 
 # ==== summary stats=====
@@ -100,8 +100,8 @@ end_data %>%
     filter(phase == 1) %>% 
     group_by(treatment) %>% 
     summarise(count = n(),
-          mean = mean(cumul_phase_gross), 
-          se = se(cumul_gross))
+              mean = mean(cumul_phase_gross), 
+              se = se(cumul_gross))
 
 end_data %>% 
     filter(phase == 2) %>% 
@@ -117,73 +117,6 @@ end_data %>%
               mean = mean(cumul_phase_gross), 
               se = se(cumul_gross))
 
-
-# # C mineralization GROSS means by treatment
-# samp1_trt_gr <- group_by(end_phase, treatment)
-# samp1_trt_gr_s <- summarise(samp1_trt_gr, 
-#                             count = n(),
-#                             mean = mean(cumul_gross), 
-#                             se = se(cumul_gross))
-# 
-# # C mineralization GROSS means by MC
-# samp1_MC_gr <- group_by(end_phase, MC)
-# samp1_MC_gr_s <- summarise(samp1_MC_gr, 
-#                            count = n(),
-#                            mean = mean(cumul_gross), 
-#                            se = se(cumul_gross))
-# 
-# # C mineralization DIFF means by treatment
-# samp1_trt_dif <- group_by(end_phase, treatment)
-# samp1_trt_dif_s <- summarise(samp1_trt_dif, 
-#                              count = n(),
-#                              mean = mean(cumul_diff), 
-#                              se = se(cumul_diff))
-# 
-# # C mineralization DIFF means by MC
-# samp1_MC_dif <- group_by(end_phase, MC)
-# samp1_MC_dif_s <- summarise(samp1_MC_dif, 
-#                             count = n(),
-#                             mean = mean(cumul_diff), 
-#                             se = se(cumul_diff))
-# 
-# 
-# # ==== ANOVAs=====
-# # 2-way ANOVA for MC and treatment -- GROSS
-# res.gross.aov2 <- aov(cumul_gross ~ MC + treatment, data = end_data)
-# summary(res.gross.aov2)
-# 
-# res.gross.aovx <- aov(cumul_gross ~ MC * treatment, data = end_data)
-# summary(res.gross.aovx)
-# 
-# # 2-way ANOVA for MC and treatment -- DIFF
-# res.diff.aov2 <- aov(cumul_diff ~ MC + treatment, data = end_data)
-# summary(res.diff.aov2)
-# 
-# res.diff.aovx <- aov(cumul_diff ~ MC * treatment, data = end_data)
-# summary(res.diff.aovx)
-# 
-# res.diff.aov1 <- aov(cumul_diff ~ treatment, data = end_data)
-# summary(res.diff.aov1)
-# 
-# #===assumptions tests===
-# plot(res.diff.aov2) #check plots for normally distributed values
-# plot(res.diff.aovx) #check plots for normally distributed values
-# 
-# plot(res.diff.aov2) #check plots for normally distributed values
-# plot(res.diff.aovx) #check plots for normally distributed values
-# 
-# 
-# # levene's test for homogeneity of variances
-# library(car)
-# samp1_levenes <- leveneTest(cumul_diff ~ treatment, data = end_data)
-# # p-value > 0.05 means no evidence to suggest variances statistically diff
-# samp1_levenes
-
-# #=== post hoc
-# TukeyHSD(res.gross.aov2, which="treatment")
-# TukeyHSD(res.diff.aov2, which="treatment")
-# # }
-
 # ==== graphs for protein content vs cumulative CO2 at end ====
 # my_formula <- y ~ poly(x, 2)
 my_formula <- y ~ x
@@ -191,8 +124,8 @@ my_formula <- y ~ x
 end_protein <- select(end_data, -carb_prop) 
 
 # check protein normality
-# end_prot_test <- end_protein$cumul_gross
-end_prot_test <- end_protein[which(end_protein$MC=='BG'), ]$cumul_gross
+end_prot_test <- end_protein$cumul_gross
+# end_prot_test <- end_protein[which(end_protein$MC=='BG'), ]$cumul_gross
 ggqqplot(end_prot_test)
 shapiro.test(end_prot_test) 
 
@@ -204,7 +137,10 @@ library(ggpmisc)
 
 mc_palette <- rev(plasma(4))
 
-ggscatter(end_protein, x = 'protein_prop', y = 'cumul_gross',
+final_protein <- end_protein %>% 
+    filter(phase == 3)
+
+prot_all <- ggscatter(final_protein, x = 'protein_prop', y = 'cumul_gross',
           color = 'MC',
           palette = mc_palette,
           title = 'protein proportion vs CO2: ALL',
@@ -219,14 +155,18 @@ ggscatter(end_protein, x = 'protein_prop', y = 'cumul_gross',
     stat_poly_eq(formula = my_formula, 
                  aes(label = paste(..eq.label.., ..rr.label.., ..AIC.label.., sep = "~~~")), 
                  parse = TRUE)
+prot_all
+# ggplotly(prot_all)
 
 if(save_toggle == TRUE) 
     ggsave(paste(here::here('results/',folder_date),
                  switch_file, 'end_prot_ALL.png',
                  sep="_"), width=8, height=4, dpi=600)
 
+##### graphing by each phase, for each MC ####
+
 graph_cumul.g <- function(which_MC, which_phase, source_data, palette_colors) {
-    prot_title <- paste('protein proportion vs CO2:', which_MC, 'phase', which_phase)
+    prot_title <- paste('protein proportion vs CO2:', which_MC, 'from start to end of phase', which_phase)
     
     # y_dims <- c((min(source_data$cumul_gross)*0.8), (max(source_data$cumul_gross)*1.2))
     source_MC <- source_data %>% 
@@ -251,13 +191,14 @@ graph_cumul.g <- function(which_MC, which_phase, source_data, palette_colors) {
                      size = 3, formula = y ~ x,  parse = TRUE)
     
     print(g_MC)
-    ggsave(paste(here::here('results/',folder_date),
-                 switch_file, 'end_prot', which_MC, '.png',
-                 sep="_"), width=6, height=4, dpi=600)
+    if(save_toggle == TRUE) 
+        ggsave(paste(here::here('results/',folder_date),
+                     switch_file, 'end_prot_CUMUL.GROSS', which_MC, '.png',
+                     sep="_"), width=6, height=4, dpi=600)
 }
 
 graph_cumul.p <- function(which_MC, which_phase, source_data, palette_colors) {
-    prot_title <- paste('protein proportion vs CO2 by phase:', which_MC, 'phase', which_phase)
+    prot_title <- paste('protein proportion vs CO2 by phase:', which_MC, 'phase', which_phase,'ONLY')
     
     y_dims <- c((min(source_data$cumul_phase_gross)*0.8), (max(source_data$cumul_phase_gross)*1.2))
     source_MC <- source_data %>% 
@@ -282,14 +223,14 @@ graph_cumul.p <- function(which_MC, which_phase, source_data, palette_colors) {
                      size = 3, formula = y ~ x,  parse = TRUE)
     
     print(g_MC)
-    ggsave(paste(here::here('results/',folder_date),
-                 switch_file, 'end_prot', which_MC, '.png',
-                 sep="_"), width=6, height=4, dpi=600)
+    if(save_toggle == TRUE) 
+        ggsave(paste(here::here('results/',folder_date),
+                     switch_file, 'end_prot_CUMUL.PHASE',which_phase, which_MC, '.png',
+                     sep="_"), width=6, height=4, dpi=600)
 }
 
 MCs <- unique(end_protein$MC)
 
-# graph_protein('BU', graph_phase, end_protein, cbPalette)
 map(MCs, function(x){graph_cumul.g(x, 2, end_protein, cbPalette)})
 map(MCs, function(x){graph_cumul.g(x, 3, end_protein, cbPalette)})
 
