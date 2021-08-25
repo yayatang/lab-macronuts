@@ -1,4 +1,8 @@
 # 6.2 AIC table making code
+## this script was whipped together in April 2020 for my committee meeting
+## the model is a basic linear model without random effects
+
+
 
 ## need to import data from somewhere
 

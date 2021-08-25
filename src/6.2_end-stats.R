@@ -25,10 +25,11 @@ formula_p.gross <- 'cumul_phase_gross ~ location + grazing + protein_prop'
 formula_p.diff <- 'cumul_phase_diff ~ location + grazing + protein_prop'
 
 # choosing one of the possible formulas to see statistical summary
-my_formula <- formula_p.diff
+my_formula <- formula_c.gross
 
 model_p1 <- lm(my_formula, filter(phase_end_data, phase==1))
 summary(model_p1)
+plot(fitted(model_p1), residuals(model_p1))
 
 model_p2 <- lm(my_formula, filter(phase_end_data, phase==2))
 summary(model_p2)

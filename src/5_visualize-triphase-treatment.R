@@ -8,26 +8,31 @@ library(here)
 if (switch_switch == 0) switch_file <- 'unswitched' else switch_file <- 'switched'
 outlier_name <- if_else(outlier_bool == TRUE, 'WITH_outliers_', 'outliers_removed_') 
 
-imported_data <- read_rds(paste0(here::here('results/4_trts_to_plot_'), outlier_name, switch_file, '.rds'))
+imported_data <- read_rds(paste0(here::here('results/4_trts_to_plot_'), 
+                                 outlier_name, switch_file, '.rds'))
 
 max_p1 <- max(filter(imported_data, phase == 1)$exp_count)
 max_p2 <- max(filter(imported_data, phase == 2)$exp_count)
 
 graph_data <- imported_data %>% 
     filter(treatment!='R')
+# graph_data <- graph_data[-966,] # deleting a duplicate minimum value, before the tube was deleted entirely as an outlier
 
 var_to_graph <- c('trt_gross_daily',
                   'trt_diff_daily',
                   'trt_gross_cumul',
-                  'trt_diff_cumul')
+                  'trt_diff_cumul',
+                  'trt_phase_cumul')
 se_to_graph <- c(rep(c('trt_se_daily'), 2),
-                 rep(c('trt_se_cumul'), 2))
+                 rep(c('trt_se_cumul'), 2),
+                 'trt_phase_se')
 # graph_group <- rep(c('MC'),4)
-y_titles <- c(rep(c('Daily CO2-C'),2), rep('Cumulative CO2-C',2))
+y_titles <- c(rep(c('Daily CO2-C'),2), rep('Cumulative CO2-C',3))
 plot_titles <- c('Daily CO2 gross production by treatment',
                  'Daily CO2 difference from control by treatment',
                  'Cumulative gross CO2 total by treatment',
-                 'Cumulative CO2 difference from control by treatment')
+                 'Cumulative CO2 difference from control by treatment',
+                 'Cumulative gross CO2 total by treatment within each phase')
 dynamic_data <- tibble(var_to_graph, se_to_graph, y_titles, plot_titles)
 
 # graph_data
@@ -45,7 +50,7 @@ dynamic_data <- tibble(var_to_graph, se_to_graph, y_titles, plot_titles)
 
 mcs <- c('BU', 'BG', 'GU', 'GG')
 # i <- 3
-# j <- 3
+# j <- 1
 
 for (j in seq_along(mcs)){
     mc_filt <- mcs[[j]]
@@ -53,7 +58,7 @@ for (j in seq_along(mcs)){
     
     for (i in seq_along(var_to_graph)){
     # i is the type of graph, according to the titles above
-        print(i)
+        print(var_to_graph[[i]])
         
         minmax_data <- graph_data %>%
             select(trt_ID, exp_count, phase, !!dynamic_data$var_to_graph[[i]], 

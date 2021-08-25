@@ -50,7 +50,7 @@ remove_outliers <- function(tubes_data) {
     filter(exp_count != 'all') %>% 
     mutate(exp_count = as.numeric(exp_count))
   
-  # second, remove the erratic tubes [***BUT DOUBLE CHECK THESE**]
+  # second, remove the erratic tubes 
   out_tubes <- out_data %>% 
     filter(exp_count == 'all') %>% 
     select(sampleID)

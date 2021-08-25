@@ -35,14 +35,14 @@ amend_trts <- read_csv(here::here('data/protein_treatments.csv')) %>%
 
 #### CN data processing ####
 CN_raw <- read_csv(here::here('data/elemental analysis/exp1_CN_data.csv'))
-colnames(CN_raw) <- c('sample_name', 'pH', 'sample_mass',
+colnames(CN_raw) <- c('sample_name', 'sample_source', 'pH', 'sample_mass',
                       'C_percent', 'N_percent', 
                       'N_total_mg', 'C_total_mg')
 
 # is this necessary at this point?
 # generate C:N ratios
 data_CN <- CN_raw %>%
-    select(sample_name, pH, sample_mass, C_percent, N_percent) %>%
+    select(sample_name, sample_source, pH, sample_mass, C_percent, N_percent) %>%
     mutate(CN_ratio = C_percent / N_percent,
            C_total_mg = C_percent /100 * sample_mass,
            N_total_mg = N_percent /100 * sample_mass)
@@ -92,7 +92,11 @@ end_p3 <- filter(all_data, exp_count == max_p3)
 phase_ends_list <- list(end_p1, end_p2, end_p3)
 phase_ends_rows <- rbind(end_p1, end_p2, end_p3)
 
+#### data export for respiration analysis ####
 # data from the ends of each phase, in one table
 write_rds(phase_ends_rows, paste0(here::here('results/6_end_data_rows_'),  outlier_name, switch_file, '.rds'))    
 # data from the ends of each phase, in list format
 write_rds(phase_ends_list, paste0(here::here('results/6_end_data_by_list_'), outlier_name, switch_file, '.rds'))
+
+#### data export for C and N properties visualization/analysis ####
+write_rds(data_CN, paste0(here::here('results/6_CN_data_'), outlier_name, switch_file, '.rds'))

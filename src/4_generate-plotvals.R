@@ -66,19 +66,22 @@ by_trt_daily <- by_tube %>%
 by_trt_cumul <- by_tube %>% 
     group_by(trt_ID, exp_count) %>% 
     summarise(trt_gross_cumul = mean(cumul_gross, na.rm=TRUE),
-              trt_se_cumul = se(cumul_gross))
+              trt_se_cumul = se(cumul_gross),
+              trt_phase_cumul = mean(cumul_phase_gross, na.rm=TRUE),
+              trt_phase_se = se(cumul_phase_gross))
 
 trt_summ <- full_join(by_trt_daily, by_trt_cumul, by=c('trt_ID', 'exp_count')) %>% 
-    left_join(unique(data_ID[,c('trt_ID', 'MC', 'treatment','exp_count','interped','phase')]), by=c('trt_ID','exp_count')) %>% #gain MC
-    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_daily_mean', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # gain C data
+    left_join(unique(data_ID[,c('trt_ID', 'MC', 'treatment','exp_count','interped','phase')]), by=c('trt_ID','exp_count')) %>% # merge with MC/treatment identifying data
+    left_join(c_summ_cumul[,c('MC', 'exp_count', 'c_daily_mean', 'c_cumul_mean', 'c_cumul_se')], by=c('MC', 'exp_count')) %>%  # merge with summarized 
     mutate(trt_diff_daily = trt_gross_daily - c_daily_mean,
            trt_diff_cumul = trt_gross_cumul - c_cumul_mean) %>% 
     select(trt_ID, MC, exp_count, everything())
 
-
 trt_summ[trt_summ$interped == TRUE,]$c_cumul_se <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_daily <- NA
 trt_summ[trt_summ$interped == TRUE,]$trt_se_cumul <- NA
+trt_summ[trt_summ$interped == TRUE,]$trt_phase_se <- NA
+
 
 # fix treatment factor levels
 # trt_levels <- factor(c('R', 'C', '8', '7', '6', '5', '4', '3', '2', '1'))
