@@ -82,3 +82,6 @@ phase_count_lookup <- function(e_count) {
   }  else {p_count <- e_count - 172}
   p_count
 }
+
+c1_palette <- viridis(9)
+names(c1_palette) <- c('1', '2', '3', '4', '5', '6', '7', '8', 'C')
